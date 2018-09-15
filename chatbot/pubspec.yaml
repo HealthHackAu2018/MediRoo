@@ -1,0 +1,24 @@
+name: chatbot
+description: A sample using Dialogflow.
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  googleapis: any
+  googleapis_auth: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://www.dartlang.org/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+  uses-material-design: true
+
+  assets:
+   - config/dialogflow.json
