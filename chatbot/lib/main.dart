@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'DigiRoo Demo',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -42,7 +42,7 @@ class _ChatMessagesState extends State<ChatMessages>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: new AppBar(title: new Text("ChatBot GDG")),
+        appBar: new AppBar(title: new Text("MediRoo")),
         body: Column(
           children: <Widget>[
             _buildList(),
@@ -78,7 +78,7 @@ class _ChatMessagesState extends State<ChatMessages>
                 });
               },
               onSubmitted: _handleSubmit,
-              decoration: InputDecoration.collapsed(hintText: "Enter Text"),
+              decoration: InputDecoration.collapsed(hintText: "Enter message"),
             ),
           ),
           new IconButton(
@@ -120,8 +120,8 @@ class _ChatMessagesState extends State<ChatMessages>
         .detectIntent(request, dialogSessionId);
     var result = resp.queryResult;
     _addMessage(
-        name: "Chat Bot",
-        initials: "CB",
+        name: "Roo",
+        initials: "R",
         bot: true,
         text: result.fulfillmentText);
   }
@@ -136,6 +136,7 @@ class _ChatMessagesState extends State<ChatMessages>
 
     var httpClient = await clientViaServiceAccount(credentials, _SCOPES);
     _dialog = new DialogflowApi(httpClient);
+    _requestChatBot('first_time_welcome John');
   }
 
   void _addMessage(

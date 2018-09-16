@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Sat Sep 15 18:52:53 AEST 2018
+#Sun Sep 16 09:28:58 AEST 2018
 4.path=flutter_assets/LICENSE
 8.set=NATIVE_RESOURCE
 6.path=flutter_assets/isolate_snapshot_data
