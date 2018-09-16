@@ -3,6 +3,7 @@
 ## Technology Stack
 
 ### [Firebase](https://firebase.google.com)
+Google's Serverless Cloud Platform
 - Firestore NoSQL db
 - Cloud Functions for DialogFlow Fulfillment
 - Cloud Messaging for Push Notifications
@@ -12,4 +13,8 @@
 - Generates native interfaces for iOS and Android
 
 ### [DialogFlow.io](https://www.dialogflow.com)
-- Google's Conversation AI Platform (chat bots)
+Google's Conversation AI Platform (chat bots)
+
+## Resources
+
+tbd.
