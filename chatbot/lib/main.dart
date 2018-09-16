@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:googleapis/dialogflow/v2.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+
 
 
 void main() => runApp(new MyApp());
 
+
 class MyApp extends StatelessWidget {
   @override
+  
+  
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'DigiRoo Demo',
@@ -18,6 +24,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class ChatMessages extends StatefulWidget {
   @override
@@ -184,6 +193,23 @@ class ChatMessageListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+        
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('on launch $message');
+      },
+    );
+
     return SizeTransition(
       sizeFactor: CurvedAnimation(
           parent: chatMessage.animationController, curve: Curves.easeOut),

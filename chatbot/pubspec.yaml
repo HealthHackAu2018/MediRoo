@@ -2,11 +2,14 @@ name: chatbot
 description: A sample using Dialogflow.
 
 dependencies:
+
   flutter:
     sdk: flutter
 
   googleapis: any
   googleapis_auth: any
+
+  firebase_messaging: 2.0.0
 
 dev_dependencies:
   flutter_test:
