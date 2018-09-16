@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "148197877736",
+    "firebase_url": "https://mediroo-542cb.firebaseio.com",
+    "project_id": "mediroo-542cb",
+    "storage_bucket": "mediroo-542cb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148197877736:android:f4c2df6680934cfe",
+        "android_client_info": {
+          "package_name": "com.example.chatbot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "148197877736-qbhsadsi4oo3vo25onp5g1ujnuvn3o13.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpBX-G9YMzsVUIDy6wCGYsi-jAM8DYeo4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
