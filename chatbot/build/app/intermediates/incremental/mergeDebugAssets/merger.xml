@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/james.mckennay/code/mediroo/MediRoo/chatbot/android/app/src/main/assets"/><source path="/Users/james.mckennay/code/mediroo/MediRoo/chatbot/build/app/generated/assets/shaders/debug"/></dataSet><dataSet config="debug"><source path="/Users/james.mckennay/code/mediroo/MediRoo/chatbot/android/app/src/debug/assets"/></dataSet></merger>
