@@ -1,6 +1,14 @@
 // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs
 // for Dialogflow fulfillment library docs, samples, and to report issues
 'use strict';
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { WebhookClient } = require('dialogflow-fulfillment');
@@ -43,12 +51,37 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
         });
     }
+    function asyncForEach(array, callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let index = 0; index < array.length; index++) {
+                yield callback(array[index], index, array);
+            }
+        });
+    }
+    // tslint:disable-next-line:no-shadowed-variable
+    function getMedicationInformation(agent) {
+        const drugName = agent.parameters.medications;
+        const medications = db.collection('medications').doc(drugName);
+        medications.get().then(function (doc) {
+            if (doc.exists) {
+                console.log("Document data:", doc.data());
+                agent.add(doc.data().Description);
+            }
+            else {
+                // doc.data() will be undefined in this case
+                console.log("No such document!");
+                agent.add("I don't know about " + drugName);
+            }
+        }).catch(function (error) {
+            console.log("Error getting document:", error);
+        });
+    }
     // tslint:disable-next-line:no-shadowed-variable
     function getMedicationSchedule(agent) {
         const patientId = 'CNB2KC1iqGKFS1agt6Y2';
         const dialogflowAgentDoc = db.collection('Patients').doc(patientId);
         const messages = db.collection('messages');
-        agent.add('fetching');
+        const patient = db.collection('Patients').doc(patientId);
         // const citiesRef = db.collection('messages');
         // const allCities = citiesRef.get()
         //     .then(snapshot => {
@@ -61,21 +94,62 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         //       agent.add('Error');
         //       console.log('Error getting documents', err);
         //     });
-        return messages.get()
-            .then(snapshot => {
-            snapshot.forEach(doc => {
-                if (!doc.exists) {
-                    agent.add('No data found in the database!');
-                }
-                else {
-                    agent.add(doc.data().message);
-                }
-            });
-            return Promise.resolve('Read complete');
-        }).catch(() => {
-            agent.add('Error reading entry from the Firestore database.');
-            agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
+        return patient.get()
+            .then(doc => {
+            if (!doc.exists) {
+                agent.add('No medications scheduled');
+            }
+            else {
+                agent.add('Your medications for today are:');
+                patient.collection("Medications").get()
+                    .then(snapshot => {
+                    agent.add(snapshot[0].data().Name);
+                    // snapshot.forEach(medication => {
+                    //   console.log(medication.data().Name);
+                    //   agent.add(medication.data().Name);
+                    // });
+                    console.log('read complete');
+                    agent.add('help');
+                    return Promise.resolve('Read complete');
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        }).catch((err) => {
+            console.log(err);
         });
+        //     // Get reference to all of the documents
+        // console.log("Retrieving list of documents in collection");
+        // let documents = collectionRef.limit(1).get()
+        //   .then(snapshot => {
+        //     snapshot.forEach(doc => {
+        //       console.log("Parent Document ID: ", doc.id);
+        //       let subCollectionDocs = collectionRef.doc(doc.id).collection("subCollection").get()
+        //         .then(snapshot => {
+        //           snapshot.forEach(doc => {
+        //             console.log("Sub Document ID: ", doc.id);
+        //           })
+        //         }).catch(err => {
+        //           console.log("Error getting sub-collection documents", err);
+        //         })
+        //     });
+        //   }).catch(err => {
+        //   console.log("Error getting documents", err);
+        // });
+        // return messages.get()
+        //   .then(snapshot => {
+        //     snapshot.forEach(doc => {
+        //       if (!doc.exists) {
+        //         agent.add('No data found in the database!');
+        //       } else {
+        //         agent.add(doc.data().message);
+        //       }
+        //     });
+        //     return Promise.resolve('Read complete');
+        //   }).catch(() => {
+        //     agent.add('Error reading entry from the Firestore database.');
+        //     agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
+        //   });
         // agent.add('done');
         // const query = db.collection('Patients');
         // agent.add('Having a look...');
@@ -150,6 +224,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     intentMap.set('get me some data', readFromDb);
     intentMap.set('save me some data', writeToDb);
     intentMap.set('get medication schedule', getMedicationSchedule);
+    intentMap.set('Drug Information', getMedicationInformation);
     // intentMap.set('your intent name here', googleAssistantHandler);
     agent.handleRequest(intentMap);
 });

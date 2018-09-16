@@ -53,15 +53,41 @@ function readFromDb (agent) {
     });
 }
 
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array)
+  }
+}
+
+// tslint:disable-next-line:no-shadowed-variable
+function getMedicationInformation(agent) {
+  const drugName = agent.parameters.medications;
+  const medications = db.collection('medications').doc(drugName);
+  
+  medications.get().then(function(doc) {
+    if (doc.exists) {
+        console.log("Document data:", doc.data());
+        agent.add(doc.data().Description);
+    } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+        agent.add("I don't know about " + drugName);
+    }
+  }).catch(function(error) {
+      console.log("Error getting document:", error);
+  });
+  
+
+}
+
 // tslint:disable-next-line:no-shadowed-variable
 function getMedicationSchedule (agent) {
 
   const patientId = 'CNB2KC1iqGKFS1agt6Y2';
   const dialogflowAgentDoc = db.collection('Patients').doc(patientId);
   const messages = db.collection('messages');
+  const patient = db.collection('Patients').doc(patientId);
 
-  agent.add('fetching');
-  
   // const citiesRef = db.collection('messages');
   // const allCities = citiesRef.get()
   //     .then(snapshot => {
@@ -75,20 +101,72 @@ function getMedicationSchedule (agent) {
   //       console.log('Error getting documents', err);
   //     });
   
-    return messages.get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          if (!doc.exists) {
-            agent.add('No data found in the database!');
-          } else {
-            agent.add(doc.data().message);
-          }
-        });
-        return Promise.resolve('Read complete');
-      }).catch(() => {
-        agent.add('Error reading entry from the Firestore database.');
-        agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
-      });
+  return patient.get()
+    .then(doc => {
+      if(!doc.exists) {
+        agent.add('No medications scheduled');
+      } else {
+        agent.add('Your medications for today are:');
+        patient.collection("Medications").get()
+          .then(snapshot => {
+            
+            agent.add(snapshot[0].data().Name);
+
+            // snapshot.forEach(medication => {
+            //   console.log(medication.data().Name);
+            //   agent.add(medication.data().Name);
+            // });
+
+            console.log('read complete');
+            agent.add('help');
+
+            return Promise.resolve('Read complete');
+
+            
+            
+          }).catch( err => {
+            console.log(err);
+          });
+      }
+      }).catch((err) => {
+      console.log(err)
+    })
+
+  //     // Get reference to all of the documents
+  // console.log("Retrieving list of documents in collection");
+  // let documents = collectionRef.limit(1).get()
+  //   .then(snapshot => {
+  //     snapshot.forEach(doc => {
+  //       console.log("Parent Document ID: ", doc.id);
+
+  //       let subCollectionDocs = collectionRef.doc(doc.id).collection("subCollection").get()
+  //         .then(snapshot => {
+  //           snapshot.forEach(doc => {
+  //             console.log("Sub Document ID: ", doc.id);
+  //           })
+  //         }).catch(err => {
+  //           console.log("Error getting sub-collection documents", err);
+  //         })
+  //     });
+  //   }).catch(err => {
+  //   console.log("Error getting documents", err);
+  // });
+
+
+    // return messages.get()
+    //   .then(snapshot => {
+    //     snapshot.forEach(doc => {
+    //       if (!doc.exists) {
+    //         agent.add('No data found in the database!');
+    //       } else {
+    //         agent.add(doc.data().message);
+    //       }
+    //     });
+    //     return Promise.resolve('Read complete');
+    //   }).catch(() => {
+    //     agent.add('Error reading entry from the Firestore database.');
+    //     agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
+    //   });
 
   // agent.add('done');
 
@@ -175,6 +253,7 @@ function writeToDb (agent) {
      intentMap.set('get me some data', readFromDb);
      intentMap.set('save me some data', writeToDb);
      intentMap.set('get medication schedule', getMedicationSchedule)
+     intentMap.set('Drug Information', getMedicationInformation);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
 });
