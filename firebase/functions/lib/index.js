@@ -24,7 +24,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     // tslint:disable-next-line:no-shadowed-variable
     function readFromDb(agent) {
         // Get the database collection 'dialogflow' and document 'agent'
-        const dialogflowAgentDoc = db.collection('dialogflow').doc('agent');
+        const patientId = 'CNB2KC1iqGKFS1agt6Y2';
+        const dialogflowAgentDoc = db.collection('Patients').doc(patientId);
         agent.add('So far so good');
         // Get the value of 'entry' in the document and send it to the user
         return dialogflowAgentDoc.get()
@@ -33,13 +34,70 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 agent.add('No data found in the database!');
             }
             else {
-                agent.add(doc.data().entry);
+                agent.add(doc.data().Email);
+                agent.add(doc.data()['First Name']);
             }
             return Promise.resolve('Read complete');
         }).catch(() => {
             agent.add('Error reading entry from the Firestore database.');
             agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
         });
+    }
+    // tslint:disable-next-line:no-shadowed-variable
+    function getMedicationSchedule(agent) {
+        const patientId = 'CNB2KC1iqGKFS1agt6Y2';
+        const dialogflowAgentDoc = db.collection('Patients').doc(patientId);
+        const messages = db.collection('messages');
+        agent.add('fetching');
+        // const citiesRef = db.collection('messages');
+        // const allCities = citiesRef.get()
+        //     .then(snapshot => {
+        //       snapshot.forEach(doc => {
+        //         agent.add(doc.data().message);
+        //         console.log(doc.id, '=>', doc.data());
+        //       });
+        //     })
+        //     .catch(err => {
+        //       agent.add('Error');
+        //       console.log('Error getting documents', err);
+        //     });
+        return messages.get()
+            .then(snapshot => {
+            snapshot.forEach(doc => {
+                if (!doc.exists) {
+                    agent.add('No data found in the database!');
+                }
+                else {
+                    agent.add(doc.data().message);
+                }
+            });
+            return Promise.resolve('Read complete');
+        }).catch(() => {
+            agent.add('Error reading entry from the Firestore database.');
+            agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
+        });
+        // agent.add('done');
+        // const query = db.collection('Patients');
+        // agent.add('Having a look...');
+        // query.get().then(querySnapshot => {
+        //   querySnapshot.forEach(documentSnapshot => {
+        //     agent.add(`Found document at ${documentSnapshot.ref.path}`);
+        //   });
+        // });
+        // agent.add('That is all I found');
+        // return dialogflowAgentDoc.get()
+        //   .then(doc => {
+        //     if (!doc.exists) {
+        //       agent.add('No data found in the database!');
+        //     } else {
+        //       agent.add(doc.data().entry);
+        //       // agent.add(doc.data().entry);
+        //     }
+        //     return Promise.resolve('Read complete');
+        //   }).catch(() => {
+        //     agent.add('Error reading entry from the Firestore database.');
+        //     agent.add('Please add a entry to the database first by saying, "Write <your phrase> to the database"');
+        //   });
     }
     // tslint:disable-next-line:no-shadowed-variable
     function writeToDb(agent) {
@@ -91,6 +149,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     // intentMap.set('Default Fallback Intent', fallback);
     intentMap.set('get me some data', readFromDb);
     intentMap.set('save me some data', writeToDb);
+    intentMap.set('get medication schedule', getMedicationSchedule);
     // intentMap.set('your intent name here', googleAssistantHandler);
     agent.handleRequest(intentMap);
 });
